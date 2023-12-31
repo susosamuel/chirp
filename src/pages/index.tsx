@@ -1,13 +1,16 @@
 import Head from "next/head";
 
-import {SignInButton, UserButton, useUser} from "@clerk/nextjs";
 import {api} from "~/utils/api";
+import {CreatePostWizzard} from "~/components/CreatePostWizzard";
+import {PostView} from "~/components/PostView";
 
 export default function Home() {
 
-    const user = useUser()
+    const {data, isLoading} = api.post.getAllPosts.useQuery()
 
-    const {data} = api.post.getAllPosts.useQuery()
+    if (!data || isLoading) {
+        return <div>Loading ...</div>
+    }
 
 
     return (
@@ -18,13 +21,16 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
             <main
-                className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-                <SignInButton/>
-                <UserButton afterSignOutUrl="/"/>
-                {user.user?.fullName}
-                <div>
-                    {data?.map((post) => (
-                        <div key={post.id}>{post.content}</div>))}
+                className="flex justify-center h-screen">
+                <div className="w-full md:max-w-2xl border-x border-slate-400 h-full">
+                    <div className="border-b border-slate-400 p-4 flex gap-4 align-middle">
+                        <CreatePostWizzard/>
+                    </div>
+                    <div className="flex flex-col">
+                        {data?.map((fullPost) => (
+                            <PostView {...fullPost} key={fullPost.post.id} />
+                        ))}
+                    </div>
                 </div>
             </main>
         </>
